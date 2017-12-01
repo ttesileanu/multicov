@@ -1,3 +1,17 @@
+# Mercurial
+.hg
+.hgignore
+
+# Editor backups
+*~
+*.swp
+
+# Matlab extensions
+*.mex*
+
+# Sequence cache
+database/private/cache/*
+
 # Prerequisites
 *.d
 

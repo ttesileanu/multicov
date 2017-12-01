@@ -1,0 +1,69 @@
+function test_alnresample
+% TEST_ALNRESAMPLE Test alnresample.m.
+
+timer = tic;
+N = 1024;
+n = 32;
+alignment1 = alngenrandom(N, n, 'multi13');
+resampled1 = alnresample(alignment1);
+
+% check that the sequences are contained in the original alignment
+utexpect(alncheck(resampled1) && isequal(resampled1.alphabets, alignment1.alphabets) && ...
+    isequal(resampled1.alphawidths, alignment1.alphawidths) && ...
+    isequal(resampled1.refseq, alignment1.refseq), ...
+    'alnresample output is alignment with proper structure');
+
+utexpect(all(ismember(resampled1.data, alignment1.data, 'rows')), ...
+    'alnresample new alignment is made from sequences in old alignment', timer);
+
+% check the second output argument
+alignment1.seqw = rand(size(alignment1.data, 1), 1);
+letters = 'A':'Z';
+randword = @(i) letters(randi(26, 5, 1));
+alignment1.annotations = arrayfun(randword, 1:size(alignment1.data), 'uniform', false);
+[resampled2, mapping2] = alnresample(alignment1);
+utexpect(all(flatten(resampled2.data == alignment1.data(mapping2, :))) && ...
+    isequal(resampled2.seqw, alignment1.seqw(mapping2)) && ...
+    isequal(resampled2.annotations, alignment1.annotations(mapping2)), ...
+    'alnresample check ''mapping'', annotations, seqw');
+
+% check a multi-alphabet case, and also the 'n' input argument
+timer = tic;
+pattern.alphabets = {'binary', 'protein'};
+pattern.alphawidths = [15 ; 8];
+alignment2 = alngenrandom(N, pattern);
+alignment2.seqw = rand(size(alignment2.data, 1), 1);
+alignment2.annotations = arrayfun(randword, 1:size(alignment2.data), 'uniform', false);
+alignment2.refseq = struct('seqdb', {'bindb', 'protdb'}, 'seqid', {'mockbin', 'mockprot'}, ...
+    'map', {1:2:29, {'1' ; '2' ; '2a' ; '3' ; '4' ; '5' ; '6' ; '7'}});
+
+[resampled3, mapping3] = alnresample(alignment2, 2*N, 'replacement', true);
+utexpect(alncheck(resampled3) && isequal(resampled3.alphabets, alignment2.alphabets) && ...
+    isequal(resampled3.alphawidths, alignment2.alphawidths) && ...
+    isequal(resampled3.refseq, alignment2.refseq) && ...
+    size(resampled3.data, 1) == 2*N, ...
+    'alnresample multi-alphabet, imposed number of sequences, trivial structure check');
+
+utexpect(all(ismember(resampled3.data, alignment2.data, 'rows')), ...
+    'alnresample multi-alphabet, new sequences are subset of original', timer);
+
+utexpect(all(flatten(resampled3.data == alignment2.data(mapping3, :))) && ...
+    isequal(resampled3.seqw, alignment2.seqw(mapping3)) && ...
+    isequal(resampled3.annotations, alignment2.annotations(mapping3)), ...
+    'alnresample multi-alphabet check ''mapping'', annotations, seqw');
+
+% check that sampling without replacement also works
+[resampled1n, mapping1n] = alnresample(alignment1, 'replacement', false);
+utexpect(length(unique(mapping1n)) == length(mapping1n), ...
+    'alnresample without relpacement does not return repetitions');
+utexpect(all(sort(mapping1n) == 1:length(mapping1n)) && ...
+    all(all(sortrows(alignment1.data) == sortrows(resampled1n.data))), ...
+    'alnresample without replacement, all sequences returns permutation');
+
+[resampled2n, mapping2n] = alnresample(alignment2, N/2, 'replacement', false);
+utexpect(length(unique(mapping2n)) == length(mapping2n), ...
+    'alnresample no relpacement, with given Nseq doesn''t return repetitions');
+utexpect(all(all(resampled2n.data == alignment2.data(mapping2n, :))), ...
+    'alnresample no replacement, with given Nseq returns subset of sequences');
+
+end

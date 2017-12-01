@@ -1,0 +1,44 @@
+Some features of some of the functions included with MultiCOV cannot be
+properly tested within the framework of unit tests. This is mostly the case
+for interactive features such as progress indicators or the generation of
+figures. In addition, although in principle testable, the unit tests generally
+do not check that proper error messages are reported (nor, to be fair, are
+these explicitly mentioned in the documentation, so their behavior should
+in general not be considered certain).
+
+For these cases, it is important to perform manual tests to check that the
+behavior is correct. Here is a list of the most important functions and
+features that should be tested.
+
+- seqsearch
+  - 'verbose' option
+- seqtruncate
+  - 'verbose' option
+- getsectors
+  - the 'figures' option, and the 'shade' and 'title' options modifying the
+    look of the figures
+  - last tested on 6/9/2014
+- smartscatter
+  - last tested on 7/22/2014
+- drawfitline
+  - the actual drawing of the fit line
+  - last tested on 6/6/2014
+- scatterfit
+  - all the drawing aspects
+  - last tested on 7/22/2014
+- preparegraph
+  - last tested on 6/6/2014
+- beautifygraph
+  - last tested on 6/6/2014
+- formattable
+  - last tested on 6/9/2014
+- multihist
+  - last tested on 6/9/2014
+- calculatedirectmodel
+  - 'verbose' option and progress information
+  - last tested on 6/16/2014
+- simmaxent
+  - 'verbose' option, progress information, and CTRL+C
+  - last tested on 6/17/2014
+- showcontacts
+  - last tested on 7/6/2014
